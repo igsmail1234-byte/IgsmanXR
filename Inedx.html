@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>iPhone Camera</title>
+<style>
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:#080a0f;
+  color:white;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  text-align:center;
+}
+header {
+  padding:25px;
+  font-size:24px;
+  font-weight:700;
+}
+#camera {
+  width:100%;
+  height:65vh;
+  object-fit:cover;
+  background:#171a22;
+}
+.controls {
+  padding:25px;
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+button {
+  border:0;
+  border-radius:16px;
+  padding:17px 24px;
+  background:#2878ff;
+  color:white;
+  font-size:16px;
+  font-weight:600;
+}
+.stop { background:#e43c50; }
+#status {
+  color:#aaa;
+  padding:10px;
+}
+</style>
+</head>
+<body>
+
+<header>📷 CAMERA</header>
+
+<video id="camera" autoplay playsinline muted></video>
+
+<div id="status">Kamera wyłączona</div>
+
+<div class="controls">
+  <button onclick="startCamera('user')">Przednia</button>
+  <button onclick="startCamera('environment')">Tylna</button>
+  <button class="stop" onclick="stopCamera()">STOP</button>
+</div>
+
+<script>
+let stream = null;
+
+async function startCamera(mode) {
+  try {
+    stopCamera();
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: mode },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+
+    const video = document.getElementById("camera");
+    video.srcObject = stream;
+    await video.play();
+
+    document.getElementById("status").textContent =
+      mode === "user" ? "Przednia kamera działa" : "Tylna kamera działa";
+
+  } catch (error) {
+    document.getElementById("status").textContent =
+      "Błąd kamery: " + error.message;
+  }
+}
+
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  document.getElementById("camera").srcObject = null;
+  document.getElementById("status").textContent = "Kamera wyłączona";
+}
+</script>
+
+</body>
+</html>
